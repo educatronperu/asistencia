@@ -9,9 +9,6 @@ const port = 3000;
 app.use(cors());
 app.use(express.json());
 
-// Servir frontend
-app.use('/', express.static(path.join(__dirname, '../../frontend')));
-
 // Rutas API
 const rolRoutes = require('./routes/rol.routes');
 const personaRoutes = require('./routes/persona.routes');
@@ -25,6 +22,7 @@ app.use('/api/login', loginRoutes);
 app.use('/api/bimestres', bimestreRoutes);
 app.use('/api/asistencia', asistenciaRoutes);
 
+
 // Ruta test
 app.get('/hora', async (req, res) => {
   const pool = require('./db');
@@ -36,6 +34,8 @@ app.get('/hora', async (req, res) => {
   }
 });
 
+// Servir frontend
+app.use('/', express.static(path.join(__dirname, '../../frontend')));
 
 app.use((req, res) => {
   if (!req.path.startsWith('/api/')) {

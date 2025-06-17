@@ -35,4 +35,41 @@ const registrarAsistencia = async (req, res) => {
   }
 };
 
-module.exports = { buscarEstudiantes, registrarAsistencia };
+// ✅ REGISTRAR ASISTENCIA MANUAL
+const registrarAsistenciaManual = async (req, res) => {
+  const { persona_id, tipo, usar_hora_inicio } = req.body;
+
+  try {
+    let horaFinal = 'NOW()'; // por defecto
+
+    if (usar_hora_inicio) {
+      // Obtener la hora_inicio desde configuracion_tardanza
+      const result = await pool.query(`
+        SELECT ct.hora_inicio
+        FROM matricula m
+        JOIN grado_seccion gs ON m.grado_seccion_id = gs.id
+        JOIN configuracion_tardanza ct ON ct.grado_seccion_id = gs.id
+        WHERE m.persona_id = $1 AND m.estado = TRUE
+      `, [persona_id]);
+
+      if (result.rows.length === 0) {
+        return res.status(400).json({ message: 'No se encontró la hora de inicio configurada.' });
+      }
+
+      horaFinal = `'${result.rows[0].hora_inicio}'`;
+    }
+
+    await pool.query(`
+      INSERT INTO asistencia (persona_id, fecha, hora, tipo)
+      VALUES ($1, CURRENT_DATE, ${horaFinal}, $2)
+    `, [persona_id, tipo]);
+
+    res.json({ message: 'Asistencia registrada con éxito.' });
+
+  } catch (error) {
+    console.error('Error al registrar asistencia manual:', error);
+    res.status(500).json({ message: 'Error al registrar asistencia.' });
+  }
+};
+
+module.exports = { buscarEstudiantes, registrarAsistencia, registrarAsistenciaManual };
