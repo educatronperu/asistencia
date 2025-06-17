@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #800000 0%, #4a0000 50%, #2d0000 100%);
+      min-height: 100vh;
+      display: flex;
+    }
+
+    /* Menú lateral */
+    .menu-lateral {
+      width: 280px;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      border-right: 1px solid rgba(255, 255, 255, 0.2);
+      color: #2d3748;
+      height: 100vh;
+      padding: 0;
+      position: fixed;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+    }
+
+    .menu-header {
+      padding: 30px 25px 20px;
+      border-bottom: 1px solid rgba(45, 55, 72, 0.1);
+      background: linear-gradient(135deg, #800000, #b30000);
+      color: white;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .menu-header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="rgba(255,255,255,0.05)"/><circle cx="75" cy="75" r="1" fill="rgba(255,255,255,0.05)"/><circle cx="50" cy="10" r="0.5" fill="rgba(255,255,255,0.03)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+      opacity: 0.3;
+    }
+
+    .menu-lateral h2 {
+      margin: 0;
+      font-size: 24px;
+      font-weight: 700;
+      color: white;
+      text-align: center;
+      position: relative;
+      z-index: 1;
+      letter-spacing: -0.5px;
+    }
+
+    .menu-subtitle {
+      text-align: center;
+      font-size: 12px;
+      opacity: 0.8;
+      margin-top: 5px;
+      font-weight: 400;
+      position: relative;
+      z-index: 1;
+    }
+
+    .menu-lateral ul {
+      list-style: none;
+      padding: 20px 0;
+      margin: 0;
+    }
+
+    .menu-lateral ul li {
+      margin: 8px 20px;
+      border-radius: 12px;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .menu-lateral ul li::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(128, 0, 0, 0.1), transparent);
+      transition: left 0.5s ease;
+    }
+
+    .menu-lateral ul li:hover::before {
+      left: 100%;
+    }
+
+    .menu-lateral ul li a {
+      color: #4a5568;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      padding: 16px 20px;
+      font-weight: 500;
+      font-size: 14px;
+      border-radius: 12px;
+      transition: all 0.3s ease;
+      position: relative;
+      z-index: 1;
+    }
+
+    .menu-lateral ul li a i {
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 15px;
+      font-size: 16px;
+      color: #800000;
+      transition: all 0.3s ease;
+    }
+
+    .menu-lateral ul li a::before {
+      display: none;
+    }
+
+    .menu-lateral ul li.active a {
+      background: linear-gradient(135deg, rgba(128, 0, 0, 0.15), rgba(179, 0, 0, 0.1));
+      color: #800000;
+      font-weight: 600;
+      box-shadow: 0 4px 15px rgba(128, 0, 0, 0.2);
+      border-left: 4px solid #800000;
+    }
+
+    .menu-lateral ul li.active a i {
+      color: #b30000;
+      transform: scale(1.1);
+    }
+
+    .menu-lateral ul li:hover {
+      transform: translateX(5px);
+      box-shadow: 0 4px 20px rgba(128, 0, 0, 0.15);
+    }
+
+    .menu-lateral ul li a:hover {
+      background: linear-gradient(135deg, rgba(128, 0, 0, 0.1), rgba(179, 0, 0, 0.05));
+      color: #800000;
+      font-weight: 600;
+    }
+
+    .menu-lateral ul li a:hover::before {
+      transform: scale(1.5);
+      opacity: 1;
+      box-shadow: 0 0 10px rgba(128, 0, 0, 0.5);
+    }
+
+    /* Contenido principal */
+    .contenido {
+      margin-left: 280px;
+      padding: 0;
+      width: calc(100% - 280px);
+      min-height: 100vh;
+    }
+
+    .topbar {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      padding: 25px 35px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+
+    .menu-toggle {
+      display: none;
+      background: none;
+      border: none;
+      font-size: 24px;
+      color: #800000;
+      cursor: pointer;
+      padding: 8px;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+    }
+
+    .menu-toggle:hover {
+      background: rgba(128, 0, 0, 0.1);
+    }
+
+    .topbar h1 {
+      margin: 0;
+      font-size: 28px;
+      font-weight: 700;
+      background: linear-gradient(135deg, #800000, #b30000);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: -0.5px;
+    }
+
+    .usuario-info {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .usuario-datos {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      padding: 12px 20px;
+      background: rgba(128, 0, 0, 0.1);
+      border-radius: 25px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #800000;
+      border: 1px solid rgba(128, 0, 0, 0.2);
+      transition: all 0.3s ease;
+    }
+
+    .usuario-datos::before {
+      content: '\f007';
+      font-family: 'Font Awesome 6 Free';
+      font-weight: 900;
+      width: 35px;
+      height: 35px;
+      background: linear-gradient(135deg, #800000, #b30000);
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      box-shadow: 0 2px 10px rgba(128, 0, 0, 0.3);
+    }
+
+    .usuario-datos:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(128, 0, 0, 0.2);
+    }
+
+    .btn-cerrar-sesion {
+      padding: 10px 20px;
+      background: linear-gradient(135deg, #dc3545, #c82333);
+      color: white;
+      border: none;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 2px 10px rgba(220, 53, 69, 0.3);
+    }
+
+    .btn-cerrar-sesion:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(220, 53, 69, 0.4);
+      background: linear-gradient(135deg, #c82333, #a71e2a);
+    }
+
+    .btn-cerrar-sesion::before {
+      content: '\f2f5';
+      font-family: 'Font Awesome 6 Free';
+      font-weight: 900;
+    }
+
+    #contenido-principal {
+      padding: 40px 35px;
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(10px);
+      margin: 25px;
+      border-radius: 20px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      min-height: calc(100vh - 200px);
+    }
+
+    #contenido-principal p {
+      font-size: 18px;
+      color: #4a5568;
+      text-align: center;
+      margin: 0;
+      font-weight: 500;
+      line-height: 1.6;
+    }
+
+    /* Animaciones de entrada por vista */
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes slideInLeft {
+      from {
+        opacity: 0;
+        transform: translateX(-50px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    @keyframes fadeInScale {
+      from {
+        opacity: 0;
+        transform: scale(0.8);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    .animate-on-scroll {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: all 0.6s ease-out;
+    }
+
+    .animate-on-scroll.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .menu-lateral ul li {
+      opacity: 0;
+      transform: translateX(-30px);
+      animation: slideInLeft 0.4s ease-out forwards;
+    }
+
+    .menu-lateral ul li:nth-child(1) { animation-delay: 0.1s; }
+    .menu-lateral ul li:nth-child(2) { animation-delay: 0.2s; }
+    .menu-lateral ul li:nth-child(3) { animation-delay: 0.3s; }
+    .menu-lateral ul li:nth-child(4) { animation-delay: 0.4s; }
+    .menu-lateral ul li:nth-child(5) { animation-delay: 0.5s; }
+    .menu-lateral ul li:nth-child(6) { animation-delay: 0.6s; }
+    .menu-lateral ul li:nth-child(7) { animation-delay: 0.7s; }
+    .menu-lateral ul li:nth-child(8) { animation-delay: 0.8s; }
+    .menu-lateral ul li:nth-child(9) { animation-delay: 0.9s; }
+    .menu-lateral ul li:nth-child(10) { animation-delay: 1.0s; }
+
+    .contenido {
+      animation: fadeInUp 0.8s ease-out;
+    }
+
+    .menu-lateral {
+      animation: slideInLeft 0.6s ease-out;
+    }
+
+    .topbar {
+      animation: fadeInUp 0.6s ease-out 0.2s both;
+    }
+
+    #contenido-principal {
+      animation: fadeInScale 0.8s ease-out 0.4s both;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .menu-toggle {
+        display: block;
+      }
+
+      .menu-lateral {
+        position: fixed;
+        width: 280px;
+        z-index: 1000;
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+      }
+
+      .menu-lateral.active {
+        transform: translateX(0);
+      }
+
+      .contenido {
+        margin-left: 0;
+        width: 100%;
+      }
+
+      .topbar {
+        padding: 20px 25px;
+      }
+
+      .topbar h1 {
+        font-size: 24px;
+      }
+
+      .usuario-info {
+        flex-direction: column;
+        gap: 10px;
+        width: auto;
+        align-items: flex-end;
+      }
+
+      .usuario-datos {
+        font-size: 12px;
+        padding: 10px 15px;
+        justify-content: center;
+      }
+
+      .btn-cerrar-sesion {
+        justify-content: center;
+        font-size: 12px;
+        padding: 8px 16px;
+      }
+
+      #contenido-principal {
+        margin: 20px;
+        padding: 30px 25px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .topbar {
+        flex-wrap: wrap;
+        gap: 15px;
+      }
+
+      .topbar-left {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        flex: 1;
+      }
+
+      .topbar h1 {
+        font-size: 20px;
+        margin: 0;
+      }
+
+      .usuario-info {
+        width: 100%;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .usuario-datos {
+        font-size: 11px;
+        padding: 8px 12px;
+        flex: 1;
+        margin-right: 10px;
+      }
+
+      .btn-cerrar-sesion {
+        font-size: 11px;
+        padding: 8px 12px;
+        white-space: nowrap;
+      }
+    }
+
+    /* Overlay para cerrar menú en móvil */
+    .menu-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 999;
+    }
+
+    .menu-overlay.active {
+      display: block;
+    }
+
+    /* Scrollbar personalizado */
+    .menu-lateral::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .menu-lateral::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .menu-lateral::-webkit-scrollbar-thumb {
+      background: rgba(128, 0, 0, 0.3);
+      border-radius: 2px;
+    }
+
+    .menu-lateral::-webkit-scrollbar-thumb:hover {
+      background: rgba(128, 0, 0, 0.5);
+    }
+  </style>
+</head>
+<body>
+  <!-- Overlay para cerrar menú en móvil -->
+  <div class="menu-overlay" id="menu-overlay" onclick="toggleMenu()"></div>
+
+  <aside class="menu-lateral" id="menu-lateral-main">
+    <div class="menu-header">
+      <h2>Dashboard</h2>
+      <div class="menu-subtitle">Sistema de Gestión</div>
+    </div>
+    <ul id="menu-lateral">
+      <!-- Aquí se llenará dinámicamente -->
+    </ul>
+  </aside>
+
+  <main class="contenido">
+    <div class="topbar">
+      <div class="topbar-left">
+        <button class="menu-toggle" id="menu-toggle" onclick="toggleMenu()">
+          <i class="fas fa-bars"></i>
+        </button>
+        <h1>Bienvenido al Sistema</h1>
+      </div>
+      <div class="usuario-info">
+        <div class="usuario-datos" id="usuario-info"></div>
+        <button class="btn-cerrar-sesion" onclick="cerrarSesion()">Cerrar Sesión</button>
+      </div>
+    </div>
+
+    <div id="contenido-principal" class="animate-on-scroll">
+      <p>Selecciona una opción del menú para comenzar.</p>
+    </div>
+  </main>
+
+  <script>
+    const menuItems = {
+      "/dashboard.html": { name: "Resumen de asistencias", icon: "fas fa-chart-line" },
+      "/persona.html": { name: "Nuevo usuario", icon: "fas fa-user-plus" },
+      "/matricula.html": { name: "Matrícula", icon: "fas fa-graduation-cap" },
+      "/aula.html": { name: "Crear aula", icon: "fas fa-door-open" },
+      "/tutores.html": { name: "Tutores", icon: "fas fa-chalkboard-teacher" },
+      "/justificacion.html": { name: "Justificaciones", icon: "fas fa-file-alt" },
+      "/feriado.html": { name: "Feriado", icon: "fas fa-calendar-times" },
+      "/configuracion_tardanza.html": { name: "Configuración tardanza", icon: "fas fa-clock" },
+      "/modules/asistencia.html": { name: "Registrar asistencia", icon: "fas fa-clipboard-check" },
+      "/mi_asistencia.html": { name: "Mi asistencia", icon: "fas fa-user-check" },
+      "/modules/bimestre.html": { name: "Bimestre", icon: "fas fa-calendar-alt" }
+    };
+
+    function construirMenu() {
+      const usuario = JSON.parse(localStorage.getItem("usuario"));
+      const menu = document.getElementById("menu-lateral");
+      const currentPage = window.location.pathname.split('/').pop() || 'dashboard.html';
+
+      usuario.permisos.forEach(ruta => {
+        if (menuItems[ruta]) {
+          const li = document.createElement("li");
+          const isActive = ruta.substring(1) === currentPage;
+          
+          li.className = isActive ? 'active' : '';
+          li.innerHTML = `
+            <a href="#" onclick="cargarModulo('${ruta}'); cerrarMenuMovil(); return false;">
+              <i class="${menuItems[ruta].icon} mr-2"></i>
+              ${menuItems[ruta].name}
+            </a>
+          `;
+          menu.appendChild(li);
+        }
+      });
+    }
+
+    function cargarModulo(ruta) {
+      const contenedor = document.getElementById("contenido-principal");
+      contenedor.innerHTML = '<p class="text-gray-500 text-center">Cargando...</p>';
+
+      console.log("Intentando cargar:", ruta); // ⬅️ agrega esto
+
+      fetch(ruta)
+        .then(response => {
+          if (!response.ok) throw new Error('Error al cargar módulo');
+          return response.text();
+        })
+        .then(html => {
+          contenedor.innerHTML = html;
+        })
+        .catch(error => {
+          console.error("Error al cargar módulo:", error);
+          contenedor.innerHTML = `<p class="text-red-600 text-center">Error al cargar el módulo.</p>`;
+          
+        });
+    }
+
+
+    function mostrarUsuario() {
+      const usuario = JSON.parse(localStorage.getItem("usuario"));
+      const userInfo = document.getElementById("usuario-info");
+      
+      // Obtener iniciales del usuario
+      const iniciales = `${usuario.nombres.charAt(0)}${usuario.apellidos.charAt(0)}`.toUpperCase();
+      
+      userInfo.innerHTML = `
+        <div class="usuario-avatar">${iniciales}</div>
+        <div class="usuario-texto">
+          <div style="font-weight: 600;">${usuario.nombres} ${usuario.apellidos}</div>
+          <div style="font-size: 12px; opacity: 0.8;">${usuario.rol}</div>
+        </div>
+      `;
+    }
+
+    function cerrarSesion() {
+      if (confirm("¿Estás seguro de que deseas cerrar sesión?")) {
+        localStorage.removeItem("usuario");
+        window.location.href = "index.html";
+      }
+    }
+
+    function toggleMenu() {
+      const menuLateral = document.getElementById("menu-lateral-main");
+      const menuOverlay = document.getElementById("menu-overlay");
+      
+      menuLateral.classList.toggle("active");
+      menuOverlay.classList.toggle("active");
+    }
+
+    // Cerrar menú al hacer clic en un enlace del menú (móvil)
+    function cerrarMenuMovil() {
+      if (window.innerWidth <= 768) {
+        const menuLateral = document.getElementById("menu-lateral-main");
+        const menuOverlay = document.getElementById("menu-overlay");
+        
+        menuLateral.classList.remove("active");
+        menuOverlay.classList.remove("active");
+      }
+    }
+
+    function verificarSesion() {
+      const usuario = JSON.parse(localStorage.getItem("usuario"));
+      if (!usuario) {
+        alert("Sesión no iniciada");
+        window.location.href = "index.html";
+        return;
+      }
+    }
+
+    // Animaciones en scroll
+    function animateOnScroll() {
+      const elements = document.querySelectorAll('.animate-on-scroll');
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+          }
+        });
+      }, { threshold: 0.1 });
+
+      elements.forEach(el => observer.observe(el));
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      verificarSesion();
+      construirMenu();
+      mostrarUsuario();
+      animateOnScroll();
+    });
+  </script>
+</body>
+</html>

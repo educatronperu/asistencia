@@ -1,0 +1,734 @@
+<!--
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ingreso al Sistema</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+
+  <div class="bg-white shadow-lg rounded-lg p-8 w-full max-w-md space-y-6">
+    <div class="text-center">
+      <img src="img/logo.png" alt="Logo del colegio" class="w-24 h-24 mx-auto mb-4">
+      <h1 class="text-2xl font-bold text-[#800000]">Sistema de Asistencia</h1>
+    </div>
+
+    <form id="loginForm" class="space-y-4">
+      <input type="text" id="usuario" class="w-full border border-gray-300 p-2 rounded" placeholder="Usuario" required />
+      <input type="password" id="clave" class="w-full border border-gray-300 p-2 rounded" placeholder="Contraseña" required />
+      <button class="w-full bg-[#800000] hover:bg-[#a00000] text-white py-2 rounded">Ingresar</button>
+    </form>
+
+    <p id="errorMsg" class="text-red-600 text-sm text-center hidden">Usuario o contraseña incorrectos.</p>
+  </div>
+
+  <script>
+    const API_URL = 'http://localhost:3000/api';
+
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const usuario = document.getElementById('usuario').value;
+      const clave = document.getElementById('clave').value;
+
+      try {
+        const res = await fetch(`${API_URL}/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ usuario, clave })
+        });
+
+        if (!res.ok) throw new Error('Login fallido');
+
+        const data = await res.json();
+        localStorage.setItem('usuario', JSON.stringify(data));
+
+        // Redirige según el rol
+        switch (data.rol_id) {
+          case 1: // Estudiante
+            window.location.href = 'estudiante.html';
+            break;
+          case 2: // Tutor
+            window.location.href = 'tutor.html';
+            break;
+          case 4: // Directivo
+            window.location.href = 'directivo.html';
+            break;
+          case 5: // Atención al cliente
+            window.location.href = 'atencion.html';
+            break;
+          default:
+            alert('Rol no reconocido: '+data.rol_id);
+        }
+
+      } catch (error) {
+        document.getElementById('errorMsg').classList.remove('hidden');
+      }
+    });
+  </script>
+</body>
+</html>-->
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Asistencia - Ingreso</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #722f37 0%, #8b1538 50%, #a91b60 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        /* Partículas de fondo animadas */
+        .particles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .particle {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            animation: float 15s infinite linear;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-10vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* Contenedor principal del login */
+        .login-container {
+            position: relative;
+            z-index: 10;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            width: 100%;
+            max-width: 400px;
+            transform: translateY(0);
+            animation: slideIn 0.8s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .login-header h1 {
+            color: #722f37;
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .login-header p {
+            color: #666;
+            font-size: 1rem;
+            opacity: 0.8;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            color: #722f37;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: #fafafa;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #722f37;
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(114, 47, 55, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .form-group input:hover {
+            border-color: #8b1538;
+        }
+
+        .password-container {
+            position: relative;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #722f37;
+            font-size: 1.2rem;
+            transition: color 0.3s ease;
+        }
+
+        .toggle-password:hover {
+            color: #8b1538;
+        }
+
+        .login-options {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .remember-me {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .remember-me input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: #722f37;
+        }
+
+        .remember-me label {
+            color: #666;
+            font-size: 0.9rem;
+            margin: 0;
+        }
+
+        .forgot-password {
+            color: #722f37;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .forgot-password:hover {
+            color: #8b1538;
+            text-decoration: underline;
+        }
+
+        .login-button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #722f37 0%, #8b1538 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .login-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(114, 47, 55, 0.4);
+        }
+
+        .login-button:active {
+            transform: translateY(0);
+        }
+
+        .login-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .login-button:hover::before {
+            left: 100%;
+        }
+
+        .divider {
+            text-align: center;
+            margin: 25px 0;
+            position: relative;
+        }
+
+        .divider::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: #e0e0e0;
+        }
+
+        .divider span {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 0 15px;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .social-login {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+
+        .social-btn {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            background: #fff;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            font-weight: 500;
+            color: #666;
+        }
+
+        .social-btn:hover {
+            border-color: #722f37;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .register-link {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .register-link p {
+            color: #666;
+            font-size: 0.95rem;
+        }
+
+        .register-link a {
+            color: #722f37;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+
+        .register-link a:hover {
+            color: #8b1538;
+            text-decoration: underline;
+        }
+
+        /* Efectos de carga */
+        .loading {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        .loading .login-button {
+            background: #999;
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .login-container {
+                margin: 20px;
+                padding: 30px 25px;
+            }
+            
+            .login-header h1 {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Partículas animadas de fondo -->
+    <div class="particles" id="particles"></div>
+
+    <!-- Contenedor principal del login -->
+    <div class="login-container">
+        <div class="login-header">
+            <img src="img/logo.png" alt="Logo del colegio" style="width: 80px; height: 80px; margin: 0 auto 15px; display: block; border-radius: 50%; box-shadow: 0 4px 15px rgba(114, 47, 55, 0.2);">
+            <h1>Sistema de Asistencia</h1>
+            <p>Ingresa a tu cuenta</p>
+        </div>
+
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="usuario">Usuario</label>
+                <input type="text" id="usuario" name="usuario" required placeholder="Ingresa tu usuario">
+            </div>
+
+            <div class="form-group">
+                <label for="clave">Contraseña</label>
+                <div class="password-container">
+                    <input type="password" id="clave" name="clave" required placeholder="••••••••">
+                    <span class="toggle-password" onclick="togglePassword()">👁</span>
+                </div>
+            </div>
+
+            <div class="login-options">
+                <div class="remember-me">
+                    <input type="checkbox" id="remember" name="remember">
+                    <label for="remember">Recordarme</label>
+                </div>
+                <a href="#" class="forgot-password" onclick="showForgotPassword()">¿Olvidaste tu contraseña?</a>
+            </div>
+
+            <button type="submit" class="login-button">
+                Ingresar
+            </button>
+        </form>
+
+        <!-- Mensaje de error -->
+        <div id="errorMsg" style="display: none; background: #ffebee; color: #c62828; padding: 12px; border-radius: 8px; margin-top: 15px; text-align: center; font-size: 0.9rem; border-left: 4px solid #c62828;">
+            Usuario o contraseña incorrectos.
+        </div>
+
+        <!-- Modal para recuperación de contraseña -->
+        <div id="forgotPasswordModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
+            <div style="background: white; padding: 30px; border-radius: 15px; max-width: 400px; width: 90%; box-shadow: 0 25px 50px rgba(0,0,0,0.3);">
+                
+                <!-- Paso 1: Solicitar usuario -->
+                <div id="step1" class="reset-step">
+                    <h3 style="color: #722f37; margin-bottom: 15px; text-align: center;">Recuperar Contraseña</h3>
+                    <p style="color: #666; margin-bottom: 20px; text-align: center; font-size: 0.9rem;">Ingresa tu nombre de usuario para recibir un código de recuperación</p>
+                    <input type="text" id="resetUsuario" placeholder="Nombre de usuario" style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; margin-bottom: 15px;">
+                    <div style="display: flex; gap: 10px;">
+                        <button onclick="closeModal()" style="flex: 1; padding: 10px; background: #ccc; border: none; border-radius: 8px; cursor: pointer;">Cancelar</button>
+                        <button onclick="sendResetCode()" style="flex: 1; padding: 10px; background: #722f37; color: white; border: none; border-radius: 8px; cursor: pointer;">Enviar Código</button>
+                    </div>
+                </div>
+
+                <!-- Paso 2: Ingresar código y nueva contraseña -->
+                <div id="step2" class="reset-step" style="display: none;">
+                    <h3 style="color: #722f37; margin-bottom: 15px; text-align: center;">Código Enviado</h3>
+                    <p style="color: #666; margin-bottom: 20px; text-align: center; font-size: 0.9rem;">Ingresa el código de 6 dígitos y tu nueva contraseña</p>
+                    <input type="text" id="resetCode" placeholder="Código de 6 dígitos" maxlength="6" style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; margin-bottom: 15px; text-align: center; font-size: 1.2rem; letter-spacing: 2px;">
+                    <input type="password" id="newPassword" placeholder="Nueva contraseña" style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; margin-bottom: 15px;">
+                    <input type="password" id="confirmPassword" placeholder="Confirmar contraseña" style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; margin-bottom: 15px;">
+                    <div style="display: flex; gap: 10px;">
+                        <button onclick="closeModal()" style="flex: 1; padding: 10px; background: #ccc; border: none; border-radius: 8px; cursor: pointer;">Cancelar</button>
+                        <button onclick="resetPassword()" style="flex: 1; padding: 10px; background: #722f37; color: white; border: none; border-radius: 8px; cursor: pointer;">Cambiar Contraseña</button>
+                    </div>
+                </div>
+
+                <!-- Mensaje de estado del modal -->
+                <div id="modalMessage" style="display: none; margin-top: 15px; padding: 10px; border-radius: 8px; text-align: center; font-size: 0.9rem;"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Crear partículas animadas
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            const particleCount = 50;
+
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                
+                // Tamaño aleatorio
+                const size = Math.random() * 4 + 1;
+                particle.style.width = size + 'px';
+                particle.style.height = size + 'px';
+                
+                // Posición aleatoria
+                particle.style.left = Math.random() * 100 + '%';
+                
+                // Velocidad aleatoria
+                const duration = Math.random() * 10 + 10;
+                particle.style.animationDuration = duration + 's';
+                
+                // Retraso aleatorio
+                const delay = Math.random() * 15;
+                particle.style.animationDelay = delay + 's';
+                
+                particlesContainer.appendChild(particle);
+            }
+        }
+
+        // Alternar visibilidad de contraseña
+        function togglePassword() {
+            const passwordInput = document.getElementById('clave');
+            const toggleIcon = document.querySelector('.toggle-password');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleIcon.textContent = '🙈';
+            } else {
+                passwordInput.type = 'password';
+                toggleIcon.textContent = '👁';
+            }
+        }
+
+        // Configuración de API
+        const API_URL = 'http://localhost:3000/api';
+
+        // Manejar envío del formulario
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const usuario = document.getElementById('usuario').value;
+            const clave = document.getElementById('clave').value;
+            const errorMsg = document.getElementById('errorMsg');
+            
+            if (!usuario || !clave) {
+                errorMsg.textContent = 'Por favor, completa todos los campos';
+                errorMsg.style.display = 'block';
+                return;
+            }
+            
+            // Ocultar mensaje de error previo
+            errorMsg.style.display = 'none';
+            
+            // Simular carga
+            const container = document.querySelector('.login-container');
+            const button = document.querySelector('.login-button');
+            const originalText = button.textContent;
+            
+            container.classList.add('loading');
+            button.textContent = 'Ingresando...';
+            
+            try {
+                const res = await fetch(`${API_URL}/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ usuario, clave })
+                });
+
+                if (!res.ok) throw new Error('Login fallido');
+
+                const data = await res.json();
+                localStorage.setItem('usuario', JSON.stringify(data));
+                console.log(usuario.permisos); // Array con rutas permitidas
+
+                // Redirige según el rol
+                /*
+                switch (data.rol_id) {
+                    case 1: // Estudiante
+                        window.location.href = 'estudiante.html';
+                        break;
+                    case 2: // Tutor
+                        window.location.href = 'tutor.html';
+                        break;
+                    case 4: // Directivo
+                        window.location.href = 'directivo.html';
+                        break;
+                    case 5: // Atención al cliente
+                        window.location.href = 'atencion.html';
+                        break;
+                    default:
+                        alert('Rol no reconocido: ' + data.rol_id);
+                }
+                */
+               window.location.href = 'dashboard.html';
+
+            } catch (error) {
+                container.classList.remove('loading');
+                button.textContent = originalText;
+                errorMsg.style.display = 'block';
+                errorMsg.textContent = 'Usuario o contraseña incorrectos.';
+            }
+        });
+
+        // Funcionalidad para "¿Olvidaste tu contraseña?"
+        function showForgotPassword() {
+            document.getElementById('forgotPasswordModal').style.display = 'flex';
+            document.getElementById('step1').style.display = 'none';
+            document.getElementById('step2').style.display = 'none';
+            document.getElementById('modalMessage').style.display = 'none';
+            
+            // Mostrar instrucciones de contacto
+            document.querySelector('#forgotPasswordModal > div').innerHTML = `
+                <div style="text-align: center;">
+                    <h3 style="color: #722f37; margin-bottom: 20px;">¿Olvidaste tu contraseña?</h3>
+                    <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+                        <p style="color: #666; margin-bottom: 15px; font-size: 0.95rem;">Para restablecer tu contraseña, contacta al administrador del sistema:</p>
+                        <div style="background: white; padding: 15px; border-radius: 8px; border-left: 4px solid #722f37;">
+                            <p style="margin: 5px 0; color: #722f37; font-weight: 600;">📞 Teléfono: +51 999 999 999</p>
+                            <p style="margin: 5px 0; color: #722f37; font-weight: 600;">📧 Email: admin@colegio.edu.pe</p>
+                            <p style="margin: 5px 0; color: #722f37; font-weight: 600;">🏢 Oficina: Secretaría - Piso 1</p>
+                        </div>
+                    </div>
+                    <p style="color: #888; font-size: 0.85rem; margin-bottom: 20px;">Proporciona tu nombre de usuario para una atención más rápida</p>
+                    <button onclick="closeModal()" style="padding: 12px 30px; background: #722f37; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">Entendido</button>
+                </div>
+            `;
+        }
+
+        function closeModal() {
+            document.getElementById('forgotPasswordModal').style.display = 'none';
+            // Limpiar campos
+            document.getElementById('resetUsuario').value = '';
+            document.getElementById('resetCode').value = '';
+            document.getElementById('newPassword').value = '';
+            document.getElementById('confirmPassword').value = '';
+        }
+
+        async function sendResetCode() {
+            const usuario = document.getElementById('resetUsuario').value.trim();
+            const messageDiv = document.getElementById('modalMessage');
+            
+            if (!usuario) {
+                showModalMessage('Por favor ingresa tu nombre de usuario', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/login/forgot-password`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ usuario })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    document.getElementById('step1').style.display = 'none';
+                    document.getElementById('step2').style.display = 'block';
+                    showModalMessage(`Código enviado. Para pruebas: ${data.code}`, 'success');
+                } else {
+                    showModalMessage(data.message, 'error');
+                }
+            } catch (error) {
+                showModalMessage('Error al enviar código', 'error');
+            }
+        }
+
+        async function resetPassword() {
+            const usuario = document.getElementById('resetUsuario').value.trim();
+            const resetCode = document.getElementById('resetCode').value.trim();
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            if (!resetCode || !newPassword || !confirmPassword) {
+                showModalMessage('Por favor completa todos los campos', 'error');
+                return;
+            }
+
+            if (newPassword !== confirmPassword) {
+                showModalMessage('Las contraseñas no coinciden', 'error');
+                return;
+            }
+
+            if (newPassword.length < 4) {
+                showModalMessage('La contraseña debe tener al menos 4 caracteres', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/login/reset-password`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ usuario, resetCode, newPassword })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showModalMessage('¡Contraseña cambiada exitosamente!', 'success');
+                    setTimeout(() => {
+                        closeModal();
+                    }, 2000);
+                } else {
+                    showModalMessage(data.message, 'error');
+                }
+            } catch (error) {
+                showModalMessage('Error al cambiar contraseña', 'error');
+            }
+        }
+
+        function showModalMessage(message, type) {
+            const messageDiv = document.getElementById('modalMessage');
+            messageDiv.textContent = message;
+            messageDiv.style.display = 'block';
+            
+            if (type === 'success') {
+                messageDiv.style.background = '#e8f5e8';
+                messageDiv.style.color = '#2e7d32';
+                messageDiv.style.borderLeft = '4px solid #2e7d32';
+            } else {
+                messageDiv.style.background = '#ffebee';
+                messageDiv.style.color = '#c62828';
+                messageDiv.style.borderLeft = '4px solid #c62828';
+            }
+        }
+
+        // Inicializar partículas cuando carga la página
+        document.addEventListener('DOMContentLoaded', function() {
+            createParticles();
+        });
+
+        // Efectos de hover en inputs
+        document.querySelectorAll('input').forEach(input => {
+            input.addEventListener('focus', function() {
+                this.parentElement.style.transform = 'scale(1.02)';
+            });
+            
+            input.addEventListener('blur', function() {
+                this.parentElement.style.transform = 'scale(1)';
+            });
+        });
+    </script>
+</body>
+</html>

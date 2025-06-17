@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Plataforma Asistencia Escolar</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body class="bg-gray-100 text-gray-900">
+
+  <!-- Header -->
+  <header class="bg-[#800000] text-white p-4 shadow-md">
+    <div class="max-w-7xl mx-auto flex justify-between items-center">
+      <h1 class="text-xl font-bold">Colegio Santa María</h1>
+
+      <!-- Ícono hamburguesa para móvil -->
+      <button class="md:hidden text-white text-2xl" onclick="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+      </button>
+
+      <!-- Menú horizontal para escritorio -->
+      <nav class="hidden md:block">
+        <ul class="flex space-x-4 text-sm font-semibold">
+          <li><a href="#" class="hover:underline" onclick="mostrarVista('padre')"><i class="fa-solid fa-user"></i> Padres</a></li>
+          <li><a href="#" class="hover:underline" onclick="mostrarVista('tutor')"><i class="fa-solid fa-chalkboard-teacher"></i> Tutores</a></li>
+          <li><a href="#" class="hover:underline" onclick="mostrarVista('directivo')"><i class="fa-solid fa-chart-bar"></i> Directivos</a></li>
+          <li><a href="#" class="hover:underline" onclick="mostrarVista('atencion')"><i class="fa-solid fa-file-pdf"></i> Atención al cliente</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Menú lateral para móvil -->
+  <aside id="sidebar" class="fixed top-0 left-0 h-full w-64 bg-white shadow-md p-4 z-50 transform -translate-x-full transition-transform duration-300 md:hidden">
+    <div class="flex justify-between items-center mb-6">
+      <h2 class="text-lg font-bold text-[#800000]">Menú</h2>
+      <button onclick="toggleSidebar()" class="text-xl text-[#800000]">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <ul class="space-y-4 text-sm font-semibold">
+      <li><a href="#" onclick="mostrarVista('padre'); toggleSidebar()"><i class="fa-solid fa-user"></i> Padres</a></li>
+      <li><a href="#" onclick="mostrarVista('tutor'); toggleSidebar()"><i class="fa-solid fa-chalkboard-teacher"></i> Tutores</a></li>
+      <li><a href="#" onclick="mostrarVista('directivo'); toggleSidebar()"><i class="fa-solid fa-chart-bar"></i> Directivos</a></li>
+      <li><a href="#" onclick="mostrarVista('atencion'); toggleSidebar()"><i class="fa-solid fa-file-pdf"></i> Atención</a></li>
+    </ul>
+  </aside>
+
+  <!-- Contenido -->
+  <main class="max-w-7xl mx-auto p-6">
+    <section id="vista-padre" class="hidden">
+      <h2 class="text-2xl font-bold mb-4">Consulta de asistencias (Padres)</h2>
+      <p>Seleccione a su hijo para ver su historial de asistencias.</p>
+    </section>
+
+    <section id="vista-tutor" class="hidden">
+      <h2 class="text-2xl font-bold mb-4">Asistencia del Aula (Tutor)</h2>
+      <p>Visualización de alumnos y su asistencia diaria.</p>
+    </section>
+
+    <section id="vista-directivo" class="hidden">
+      <h2 class="text-2xl font-bold mb-4">Dashboard de Asistencia (Directivos)</h2>
+      <p>Resumen por sede, turno y nivel.</p>
+    </section>
+
+    <section id="vista-atencion" class="hidden">
+      <h2 class="text-2xl font-bold mb-4">Consulta para Apoderados (Atención al Cliente)</h2>
+      <p>Imprimir reporte individual de asistencia.</p>
+    </section>
+  </main>
+
+  <script>
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      sidebar.classList.toggle('-translate-x-full');
+    }
+
+    function mostrarVista(rol) {
+      document.querySelectorAll('section[id^="vista-"]').forEach(s => s.classList.add('hidden'));
+      document.getElementById(`vista-${rol}`).classList.remove('hidden');
+    }
+
+    mostrarVista('padre'); // Por defecto
+  </script>
+
+</body>
+</html>

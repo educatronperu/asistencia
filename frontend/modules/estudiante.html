@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Asistencia del Estudiante</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.css' rel='stylesheet' />
+  <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js'></script>
+  <script src="https://unpkg.com/@popperjs/core@2"></script>
+</head>
+
+<body class="bg-gray-100">
+
+  <!-- Barra superior -->
+  <header class="bg-[#800000] text-white p-4 flex justify-between items-center">
+    <h1 class="text-xl font-semibold">Asistencia Escolar</h1>
+    <button id="menuBtn" class="md:hidden">
+      ☰
+    </button>
+  </header>
+
+  <!-- Menú lateral -->
+  <div class="flex">
+    <aside id="sidebar" class="bg-[#800000] text-white w-64 min-h-screen p-4 hidden md:block">
+      <nav class="space-y-4">
+        <a href="#" class="block hover:underline">📅 Asistencia</a>
+        <a href="#" class="block hover:underline">📊 Resumen Bimestral</a>
+        <a href="#" class="block hover:underline">📁 Justificaciones</a>
+        <a href="#" class="block hover:underline">🚪 Salir</a>
+      </nav>
+    </aside>
+
+    <!-- Contenido -->
+    <main class="flex-1 p-6">
+      <div id="calendar" class="bg-white p-4 rounded shadow"></div>
+
+      <!-- Filtros -->
+      <div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div>
+          <label class="block mb-1 text-sm">Desde</label>
+          <input type="date" id="desde" class="border p-2 w-full rounded" />
+        </div>
+        <div>
+          <label class="block mb-1 text-sm">Hasta</label>
+          <input type="date" id="hasta" class="border p-2 w-full rounded" />
+        </div>
+        <div class="flex items-end">
+          <button onclick="filtrarAsistencia()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 w-full">
+            Filtrar
+          </button>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    // Toggle menú hamburguesa
+    document.getElementById('menuBtn').addEventListener('click', () => {
+      const sidebar = document.getElementById('sidebar');
+      sidebar.classList.toggle('hidden');
+    });
+
+    document.addEventListener('DOMContentLoaded', function () {
+      const calendarEl = document.getElementById('calendar');
+      const calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth',
+        locale: 'es',
+        headerToolbar: {
+          left: 'prev,next today',
+          center: 'title',
+          right: 'dayGridMonth,listWeek'
+        },
+        events: async function (fetchInfo, successCallback, failureCallback) {
+          try {
+            const res = await fetch(`http://localhost:3000/api/asistencias-estudiante?desde=${fetchInfo.startStr}&hasta=${fetchInfo.endStr}`);
+            const data = await res.json();
+            const eventos = data.map(as => ({
+              title: as.estado === 'asistio' ? '✔ Asistencia' :
+                     as.estado === 'falta' ? '❌ Falta' :
+                     '⏰ Tardanza',
+              start: as.fecha,
+              color: as.estado === 'asistio' ? '#22c55e' : as.estado === 'falta' ? '#ef4444' : '#facc15'
+            }));
+            successCallback(eventos);
+          } catch (err) {
+            failureCallback(err);
+          }
+        }
+      });
+      calendar.render();
+    });
+
+    function filtrarAsistencia() {
+      location.reload(); // En una versión más avanzada puedes volver a cargar el calendario con nuevas fechas
+    }
+  </script>
+</body>
+</html>

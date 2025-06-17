@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gestión de Personas</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 text-gray-900">
+
+  <div class="max-w-5xl mx-auto p-4">
+    <h1 class="text-3xl font-bold mb-6 text-center">Gestión de Personas</h1>
+
+    <!-- Formulario -->
+    <form id="personaForm" class="bg-white p-6 rounded shadow-md space-y-4">
+      <input type="hidden" id="personaId" />
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <input id="dni" class="border p-2 rounded" placeholder="DNI" required />
+        <input id="apellidos" class="border p-2 rounded" placeholder="Apellidos" required />
+        <input id="nombres" class="border p-2 rounded" placeholder="Nombres" required />
+        <input id="direccion" class="border p-2 rounded" placeholder="Dirección" />
+        <input id="fecha_nacimiento" type="date" class="border p-2 rounded" required />
+        <input id="usuario" class="border p-2 rounded" placeholder="Usuario" required />
+        <input id="clave" type="password" class="border p-2 rounded" placeholder="Clave" required />
+        <input id="foto" class="border p-2 rounded" placeholder="URL de Foto" />
+        <select id="rol_id" class="border p-2 rounded" required></select>
+      </div>
+
+      <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">
+        Guardar
+      </button>
+    </form>
+
+    <!-- Tabla -->
+    <div class="mt-10 bg-white p-4 rounded shadow-md">
+      <table class="min-w-full text-sm border-collapse border border-gray-300">
+        <thead class="bg-blue-600 text-white">
+          <tr>
+            <th class="p-2 border border-gray-300">#</th>
+            <th class="p-2 border border-gray-300">Nombre</th>
+            <th class="p-2 border border-gray-300">Usuario</th>
+            <th class="p-2 border border-gray-300">Rol</th>
+            <th class="p-2 border border-gray-300">Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="tablaPersonas"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = 'http://localhost:3000/api';
+
+    document.addEventListener('DOMContentLoaded', () => {
+      cargarPersonas();
+      cargarRoles();
+
+      document.getElementById('personaForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const data = {
+          dni: dni.value,
+          apellidos: apellidos.value,
+          nombres: nombres.value,
+          direccion: direccion.value,
+          fecha_nacimiento: fecha_nacimiento.value,
+          usuario: usuario.value,
+          clave: clave.value,
+          foto: foto.value,
+          rol_id: rol_id.value
+        };
+
+        const id = personaId.value;
+        const method = id ? 'PUT' : 'POST';
+        const url = id ? `${API_URL}/personas/${id}` : `${API_URL}/personas`;
+
+        const res = await fetch(url, {
+          method,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+
+        await res.json();
+        document.getElementById('personaForm').reset();
+        personaId.value = '';
+        cargarPersonas();
+      });
+    });
+
+    async function cargarRoles() {
+      const res = await fetch(`${API_URL}/roles`);
+      const roles = await res.json();
+      const select = document.getElementById('rol_id');
+      select.innerHTML = '';
+      roles.forEach(r => {
+        const option = document.createElement('option');
+        option.value = r.id;
+        option.textContent = r.nombre;
+        select.appendChild(option);
+      });
+    }
+
+    async function cargarPersonas() {
+      const res = await fetch(`${API_URL}/personas`);
+      const personas = await res.json();
+      const tbody = document.getElementById('tablaPersonas');
+      tbody.innerHTML = '';
+      personas.forEach((p, i) => {
+        const tr = document.createElement('tr');
+        tr.classList.add('hover:bg-gray-100');
+
+        tr.innerHTML = `
+          <td class="border p-2 text-center">${i + 1}</td>
+          <td class="border p-2">${p.nombres} ${p.apellidos}</td>
+          <td class="border p-2">${p.usuario}</td>
+          <td class="border p-2">${p.rol}</td>
+          <td class="border p-2 text-center space-x-2">
+            <button onclick="editarPersona(${p.id})" class="text-blue-600 hover:text-blue-800" title="Editar">
+              ✏️
+            </button>
+            <button onclick="eliminarPersona(${p.id})" class="text-red-600 hover:text-red-800" title="Eliminar">
+              🗑️
+            </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    async function editarPersona(id) {
+      const res = await fetch(`${API_URL}/personas`);
+      const personas = await res.json();
+      const persona = personas.find(p => p.id === id);
+      if (!persona) return;
+
+      personaId.value = persona.id;
+      dni.value = persona.dni;
+      apellidos.value = persona.apellidos;
+      nombres.value = persona.nombres;
+      direccion.value = persona.direccion;
+      fecha_nacimiento.value = persona.fecha_nacimiento.substring(0, 10);
+      usuario.value = persona.usuario;
+      clave.value = persona.clave;
+      foto.value = persona.foto;
+      rol_id.value = persona.rol_id;
+    }
+
+    async function eliminarPersona(id) {
+      if (!confirm('¿Deseas eliminar esta persona?')) return;
+
+      await fetch(`${API_URL}/personas/${id}`, { method: 'DELETE' });
+      cargarPersonas();
+    }
+  </script>
+</body>
+</html>
