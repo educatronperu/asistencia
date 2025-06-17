@@ -36,9 +36,13 @@ app.get('/hora', async (req, res) => {
   }
 });
 
-// Esta ruta debe ir al final:
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../../frontend/dashboard.html'));
+
+app.use((req, res) => {
+  if (!req.path.startsWith('/api/')) {
+    res.sendFile(path.join(__dirname, '../../frontend/dashboard.html'));
+  } else {
+    res.status(404).json({ message: 'API endpoint not found' });
+  }
 });
 
 app.listen(port, () => {

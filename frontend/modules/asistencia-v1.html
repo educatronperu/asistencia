@@ -1,0 +1,88 @@
+<div class="p-6 bg-white rounded-xl shadow-lg max-w-4xl mx-auto mt-8">
+  <h2 class="text-2xl font-bold text-[#800000] mb-4 text-center uppercase">Registrar asistencia manual</h2>
+
+  <input
+    id="buscador"
+    type="text"
+    placeholder="Escriba nombres o apellidos..."
+    class="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#800000] mb-6"
+    autocomplete="off"
+  />
+
+  <div id="resultados" class="space-y-4 max-h-[500px] overflow-y-auto"></div>
+</div>
+
+<script>
+  const input = document.getElementById('buscador');
+  const contenedor = document.getElementById('resultados');
+
+  input.addEventListener('input', async () => {
+    const texto = input.value.trim();
+
+    contenedor.innerHTML = '<p class="text-center text-sm text-gray-400">Buscando...</p>';
+
+    if (texto.length < 2) {
+      contenedor.innerHTML = '<p class="text-center text-sm text-gray-400">Escriba al menos 2 letras...</p>';
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/asistencia/buscar?query=${encodeURIComponent(texto)}`);
+      const personas = await res.json();
+
+      if (!personas.length) {
+        contenedor.innerHTML = '<p class="text-center text-gray-500">No se encontraron coincidencias.</p>';
+        return;
+      }
+
+      contenedor.innerHTML = personas.map((p, i) => `
+        <div class="border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md transition">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between">
+            <div>
+              <p class="text-lg font-semibold text-gray-800">${p.nombres} ${p.apellidos}</p>
+              <p class="text-sm text-gray-500">DNI: ${p.dni}</p>
+              <p class="text-sm text-gray-500">Rol: ${p.rol}</p>
+            </div>
+            <div class="mt-4 sm:mt-0 flex flex-col sm:flex-row gap-2">
+              <button onclick="registrar(${p.id}, 'config', '${p.rol}')" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm transition">
+                Registrar asistencia
+              </button>
+              <button onclick="registrar(${p.id}, 'now', '${p.rol}')" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded text-sm transition">
+                Registrar hora actual
+              </button>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    } catch (error) {
+      console.error("Error buscando personas:", error);
+      contenedor.innerHTML = '<p class="text-red-600 text-center">Error al buscar personas.</p>';
+    }
+  });
+
+  async function registrar(persona_id, tipo, rol) {
+    if (tipo === 'config' && rol !== 'alumno') {
+      alert('Solo estudiantes pueden registrar asistencia con hora de aula');
+      return;
+    }
+
+    try {
+      const res = await fetch('/api/asistencia', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ persona_id, tipo })
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        alert('✅ Asistencia registrada correctamente');
+      } else {
+        alert('❌ Error: ' + (data.message || 'No se pudo registrar'));
+      }
+    } catch (error) {
+      console.error("Error al registrar:", error);
+      alert('❌ Error al registrar asistencia');
+    }
+  }
+</script>

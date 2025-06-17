@@ -1,88 +1,83 @@
-<div class="p-6 bg-white rounded-xl shadow-lg max-w-4xl mx-auto mt-8">
-  <h2 class="text-2xl font-bold text-[#800000] mb-4 text-center uppercase">Registrar asistencia manual</h2>
+<div class="p-6">
+  <h2 class="text-2xl font-semibold text-[#800000] mb-4">Registrar Asistencia Manual</h2>
 
-  <input
-    id="buscador"
-    type="text"
-    placeholder="Escriba nombres o apellidos..."
-    class="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#800000] mb-6"
-    autocomplete="off"
-  />
+  <div class="mb-4">
+    <label for="busqueda-persona" class="block text-sm font-medium text-gray-700">Buscar estudiante o trabajador:</label>
+    <input
+      type="text"
+      id="busqueda-persona"
+      class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm p-2 focus:ring-[#800000] focus:border-[#800000]"
+      placeholder="Escriba al menos 2 caracteres..."
+    />
+  </div>
 
-  <div id="resultados" class="space-y-4 max-h-[500px] overflow-y-auto"></div>
+  <div id="resultado-busqueda" class="space-y-3">
+    <!-- Aquí aparecerán los resultados -->
+  </div>
 </div>
 
 <script>
-  const input = document.getElementById('buscador');
-  const contenedor = document.getElementById('resultados');
-
-  input.addEventListener('input', async () => {
-    const texto = input.value.trim();
-
-    contenedor.innerHTML = '<p class="text-center text-sm text-gray-400">Buscando...</p>';
-
-    if (texto.length < 2) {
-      contenedor.innerHTML = '<p class="text-center text-sm text-gray-400">Escriba al menos 2 letras...</p>';
-      return;
-    }
+  // Función para buscar coincidencias
+  async function buscarCoincidencias(query) {
+    const contenedor = document.getElementById("resultado-busqueda");
+    contenedor.innerHTML = '<p class="text-gray-500">Buscando...</p>';
 
     try {
-      const res = await fetch(`/api/asistencia/buscar?query=${encodeURIComponent(texto)}`);
+      const res = await fetch(`/api/asistencia/buscar?query=${encodeURIComponent(query)}`);
       const personas = await res.json();
 
-      if (!personas.length) {
-        contenedor.innerHTML = '<p class="text-center text-gray-500">No se encontraron coincidencias.</p>';
+      if (personas.length === 0) {
+        contenedor.innerHTML = '<p class="text-red-600 text-sm mt-2">No se encontraron coincidencias.</p>';
         return;
       }
 
-      contenedor.innerHTML = personas.map((p, i) => `
-        <div class="border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md transition">
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between">
-            <div>
-              <p class="text-lg font-semibold text-gray-800">${p.nombres} ${p.apellidos}</p>
-              <p class="text-sm text-gray-500">DNI: ${p.dni}</p>
-              <p class="text-sm text-gray-500">Rol: ${p.rol}</p>
-            </div>
-            <div class="mt-4 sm:mt-0 flex flex-col sm:flex-row gap-2">
-              <button onclick="registrar(${p.id}, 'config', '${p.rol}')" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm transition">
-                Registrar asistencia
-              </button>
-              <button onclick="registrar(${p.id}, 'now', '${p.rol}')" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded text-sm transition">
-                Registrar hora actual
-              </button>
-            </div>
+      contenedor.innerHTML = personas.map(p => `
+        <div class="bg-white shadow p-4 rounded border border-gray-200">
+          <p class="font-semibold text-lg">${p.nombres} ${p.apellidos}</p>
+          <p class="text-sm text-gray-600 mb-2">DNI: ${p.dni}</p>
+          <div class="flex space-x-2">
+            <button onclick="registrarHoraActual(${p.id})"
+              class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm">
+              Registrar hora actual
+            </button>
+            <button onclick="registrarHoraInicio(${p.id})"
+              class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded text-sm">
+              Registrar asistencia
+            </button>
           </div>
         </div>
       `).join('');
     } catch (error) {
-      console.error("Error buscando personas:", error);
-      contenedor.innerHTML = '<p class="text-red-600 text-center">Error al buscar personas.</p>';
-    }
-  });
-
-  async function registrar(persona_id, tipo, rol) {
-    if (tipo === 'config' && rol !== 'alumno') {
-      alert('Solo estudiantes pueden registrar asistencia con hora de aula');
-      return;
-    }
-
-    try {
-      const res = await fetch('/api/asistencia', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ persona_id, tipo })
-      });
-
-      const data = await res.json();
-
-      if (res.ok) {
-        alert('✅ Asistencia registrada correctamente');
-      } else {
-        alert('❌ Error: ' + (data.message || 'No se pudo registrar'));
-      }
-    } catch (error) {
-      console.error("Error al registrar:", error);
-      alert('❌ Error al registrar asistencia');
+      console.error("❌ Error al buscar:", error);
+      contenedor.innerHTML = '<p class="text-red-600 text-sm">Error al buscar coincidencias.</p>';
     }
   }
+
+  // Funciones de acción (placeholder)
+  function registrarHoraActual(idPersona) {
+    alert(`📌 Registrar hora actual para ID ${idPersona}`);
+    // Aquí va la lógica para registrar NOW()
+  }
+
+  function registrarHoraInicio(idPersona) {
+    alert(`📌 Registrar hora programada (configurada) para ID ${idPersona}`);
+    // Aquí va la lógica para usar configuracion_tardanza
+  }
+
+  // Esperar que el DOM esté completamente insertado en el dashboard
+  setTimeout(() => {
+    const input = document.getElementById("busqueda-persona");
+    if (input) {
+      input.addEventListener("keyup", (e) => {
+        const query = e.target.value.trim();
+        if (query.length >= 2) {
+          buscarCoincidencias(query);
+        } else {
+          document.getElementById("resultado-busqueda").innerHTML = "";
+        }
+      });
+    } else {
+      console.warn("⚠️ No se encontró el campo de búsqueda");
+    }
+  }, 100);
 </script>

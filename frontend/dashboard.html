@@ -601,6 +601,7 @@
         });
     }
 */
+/*
     function cargarModulo(ruta) {
       const contenedor = document.getElementById("contenido-principal");
       contenedor.innerHTML = '<p class="text-gray-500 text-center">Cargando...</p>';
@@ -622,6 +623,120 @@
           contenedor.innerHTML = `<p class="text-red-600 text-center">Error al cargar el módulo:<br>${error.message}</p>`;
         });
     }
+*/
+/*
+function cargarModulo(ruta) {
+  const contenedor = document.getElementById("contenido-principal");
+  contenedor.innerHTML = '<p class="text-gray-500 text-center">Cargando...</p>';
+
+  fetch(ruta)
+    .then(response => {
+      if (!response.ok) throw new Error("Error al cargar módulo");
+      return response.text();
+    })
+    .then(html => {
+      contenedor.innerHTML = html;
+
+      // Ejecutar scripts embebidos manualmente
+      const scripts = contenedor.querySelectorAll("script");
+      scripts.forEach(script => {
+        const nuevoScript = document.createElement("script");
+        if (script.src) {
+          nuevoScript.src = script.src;
+        } else {
+          nuevoScript.textContent = script.textContent;
+        }
+        document.body.appendChild(nuevoScript);
+      });
+    })
+    .catch(error => {
+      console.error("Error al cargar módulo:", error);
+      contenedor.innerHTML = `<p class="text-red-600 text-center">Error al cargar el módulo.</p>`;
+    });
+}
+*/
+/*
+function cargarModulo(ruta) {
+  const contenedor = document.getElementById("contenido-principal");
+  contenedor.innerHTML = '<p class="text-gray-500 text-center">Cargando...</p>';
+
+  console.log("🔍 Cargando módulo:", ruta);
+
+  fetch(ruta)
+    .then(response => {
+      if (!response.ok) throw new Error(`❌ Error al cargar: ${response.statusText}`);
+      return response.text();
+    })
+    .then(html => {
+      contenedor.innerHTML = html;
+
+      console.log("✅ HTML insertado correctamente");
+
+      // Ejecutar scripts embebidos
+      const scripts = contenedor.querySelectorAll("script");
+      if (scripts.length === 0) {
+        console.warn("⚠️ No se encontraron <script> en el módulo cargado");
+      }
+
+      scripts.forEach(script => {
+        const nuevoScript = document.createElement("script");
+
+        if (script.src) {
+          console.log("📦 Cargando script externo:", script.src);
+          nuevoScript.src = script.src;
+          nuevoScript.onload = () => console.log("✅ Script externo cargado");
+          nuevoScript.onerror = () => console.error("❌ Error al cargar script externo:", script.src);
+        } else {
+          console.log("📄 Ejecutando script embebido");
+          nuevoScript.textContent = script.textContent;
+        }
+
+        document.body.appendChild(nuevoScript);
+      });
+
+      console.log("✅ Todos los scripts insertados");
+    })
+    .catch(error => {
+      console.error("❌ Error al cargar el módulo:", error);
+      contenedor.innerHTML = `<p class="text-red-600 text-center">Error al cargar el módulo: ${error.message}</p>`;
+    });
+}
+*/
+
+function cargarModulo(ruta) {
+    const contenedor = document.getElementById("contenido-principal");
+    contenedor.innerHTML = '<p class="text-gray-500 text-center">Cargando...</p>';
+    
+    fetch(ruta)
+        .then(response => {
+            if (!response.ok) throw new Error(`Error al cargar: ${response.statusText}`);
+            return response.text();
+        })
+        .then(html => {
+            contenedor.innerHTML = html;
+            
+            // Ejecutar scripts después de insertar HTML
+            const scripts = contenedor.querySelectorAll('script');
+            scripts.forEach(script => {
+                if (!script.src) {
+                    const nuevoScript = document.createElement('script');
+                    nuevoScript.textContent = script.textContent;
+                    document.head.appendChild(nuevoScript);
+                    document.head.removeChild(nuevoScript); // Ejecuta y limpia
+                }
+            });
+            
+            // Disparar evento personalizado para inicializar funcionalidades
+            setTimeout(() => {
+                const event = new Event('modulosCargados');
+                document.dispatchEvent(event);
+            }, 100);
+        })
+        .catch(error => {
+            console.error("❌ Error al cargar módulo:", error);
+            contenedor.innerHTML = `<p class="text-red-600 text-center">Error: ${error.message}</p>`;
+        });
+}
 
     function mostrarUsuario() {
       const usuario = JSON.parse(localStorage.getItem("usuario"));
@@ -693,6 +808,11 @@
       construirMenu();
       mostrarUsuario();
       animateOnScroll();
+    });
+
+    // borrar esta última parte
+    document.addEventListener('DOMContentLoaded', () => {
+      console.log('Permisos:', JSON.parse(localStorage.getItem('usuario')).permisos);
     });
   </script>
 </body>
