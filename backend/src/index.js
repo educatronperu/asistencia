@@ -8,7 +8,8 @@ const port = 3000;
 
 app.use(cors());
 app.use(express.json());
-app.use(express.static(path.join(__dirname, '../../frontend')));
+//app.use(express.static(path.join(__dirname, '../../frontend')));
+app.use('/', express.static(path.join(__dirname, '../../frontend')));
 
 // Rutas
 const rolRoutes = require('./routes/rol.routes');
@@ -16,6 +17,12 @@ const personaRoutes = require('./routes/persona.routes');
 const loginRoutes = require('./routes/login'); // ✅ nueva ruta de login
 const bimestreRoutes = require('./routes/bimestre.routes');
 const asistenciaRoutes = require('./routes/asistencia.routes');
+
+// (opcional) si quieres que cualquier otra URL devuelva el dashboard
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../../frontend/dashboard.html'));
+});
+
 
 app.use('/api/roles', rolRoutes);
 app.use('/api/personas', personaRoutes);
